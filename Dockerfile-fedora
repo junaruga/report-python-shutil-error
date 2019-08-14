@@ -1,0 +1,14 @@
+ARG BASE_IMAGE=fedora
+FROM ${BASE_IMAGE}
+
+ARG PY_VERSION=3.7
+
+RUN uname -m
+RUN dnf -y upgrade && \
+  dnf -y install \
+  /usr/bin/python$PY_VERSION && \
+  dnf clean all
+RUN python$PY_VERSION --version
+
+WORKDIR /work
+COPY . .

@@ -1,0 +1,25 @@
+dist: xenial
+language: bash
+services: docker
+matrix:
+  include:
+    - name: x86_64
+      env: BASE_IMAGE=fedora
+    # ARM, 64-bit, Little-endian
+    - name: aarch64
+      env: BASE_IMAGE=arm64v8/fedora:30
+  allow_failures:
+  fast_finish: true
+before_install:
+  - docker --version
+  - docker version
+  - docker info
+install:
+  - ls /proc/sys/fs/binfmt_misc/
+  # Running multiarch/qemu-user-static image is to install
+  # /proc/sys/fs/binfmt_misc/qemu-* files to emulate arch container on x86_64.
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  - ls /proc/sys/fs/binfmt_misc/
+  - docker build --rm --build-arg BASE_IMAGE="${BASE_IMAGE}" -t my-test -f Dockerfile-fedora .
+script:
+  - docker run --rm -t my-test bash -cx "uname -m"
